@@ -1,0 +1,138 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+	<groupId>com.osbcon</groupId>
+    <artifactId>osb-build</artifactId>   
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <config.jar>${basedir}/target/config.jar</config.jar>
+        <config.project>"OSB Configuration"</config.project>
+        <import.project>All</import.project>
+        <domain.import.script>import.py</domain.import.script>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <fmw.home>c:/Oracle/Middleware</fmw.home>
+                <eclipse.home>${fmw.home}/oepe</eclipse.home>
+                <weblogic.home>${fmw.home}/wlserver_10.3</weblogic.home>
+                <osb.home>${fmw.home}/Oracle_OSB1</osb.home>
+                <wls.username>weblogic</wls.username>
+                <wls.password>weblogic</wls.password>
+                <wls.server>t3://localhost:7002</wls.server>
+                <import.customFile>ALSBCustomizationFile.xml</import.customFile>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>.metadata</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>auto-clean</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>buildWorkspaceFromOEPE</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>false</includePluginDependencies>
+                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <executable>java</executable>
+                            <environmentVariables>
+                                <CLASSPATH>
+                                    ${eclipse.home}/plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar${path.separator}${osb.home}/modules/com.bea.common.configfwk_1.7.0.0.jar${path.separator}${osb.home}/modules/com.bea.core.xml.xmlbeans_2.2.0.0_2-5-1.jar${path.separator}${osb.home}/lib/alsb.jar${path.separator}${osb.home}/lib/sb-kernel-wls.jar${path.separator}${osb.home}/lib/sb-kernel-impl.jar${path.separator}${osb.home}/lib/sb-kernel-api.jar${path.separator}${weblogic.home}/server/lib/weblogic.jar${path.separator}${weblogic.home}/server/lib/wls-api.jar${path.separator}
+                                </CLASSPATH>
+                            </environmentVariables>
+                            <arguments>
+                                <argument>-XX:MaxPermSize=512m</argument>
+                                <argument>-Dmiddleware.home=${fmw.home}</argument>
+                                <argument>-Dweblogic.home=${weblogic.home}</argument>
+                                <argument>-Dosb.home=${osb.home}</argument>
+                                <argument>-Dharvester.home=${osb.home}/harvester</argument>
+                                <argument>-Declipse.home=${eclipse.home}</argument>
+                                <argument>-Dosgi.nl=en_US</argument>
+                                <argument>-Dosgi.bundlefile.limit=750</argument>
+                                <argument>-Dsun.lang.ClassLoader.allowArraySyntax=true</argument>
+
+                                <argument>org.eclipse.equinox.launcher.Main</argument>
+
+                                <argument>-application</argument>
+                                <argument>com.bea.alsb.core.ConfigExport</argument>
+
+                                <argument>-data</argument>
+                                <argument>${basedir}</argument>
+
+                                <argument>-configProject</argument>
+                                <argument>${config.project}</argument>
+
+                                <argument>-configJar</argument>
+                                <argument>${config.jar}</argument>
+
+                                <argument>-includeDependencies</argument>
+                                <argument>true</argument>
+                            </arguments>
+                            <removeAll>true</removeAll>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>deployAllToOSB</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>false</includePluginDependencies>
+                            <workingDirectory>${basedir}</workingDirectory>
+                            <executable>java</executable>
+                            <environmentVariables>
+                                <CLASSPATH>
+                                    ${weblogic.home}/server/lib/weblogic.jar${path.separator}${osb.home}/modules/com.bea.core.xml.xmlbeans_2.2.0.0_2-5-1.jar${path.separator}${osb.home}/lib/alsb.jar${path.separator}${osb.home}/lib/sb-kernel-wls.jar${path.separator}${osb.home}/lib/sb-kernel-impl.jar${path.separator}${osb.home}/lib/sb-kernel-api.jar${path.separator}${osb.home}/modules/com.bea.common.configfwk_1.7.0.0.jar${path.separator}
+                                </CLASSPATH>
+                            </environmentVariables>
+                            <arguments>
+                                <argument>weblogic.WLST</argument>
+                                <argument>${domain.import.script}</argument>
+                                <argument>${wls.username}</argument>
+                                <argument>${wls.password}</argument>
+                                <argument>${wls.server}</argument>
+                                <argument>${import.project}</argument>
+                                <argument>${config.jar}</argument>
+                                <argument>${import.customFile}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
