@@ -6,7 +6,7 @@
 
     <properties>
         <config.jar>${basedir}/target/config.jar</config.jar>
-		<config.subprojects>LVS</config.subprojects>"
+	<config.subprojects>LVS</config.subprojects>"
         <config.project>"OSB Configuration"</config.project>
         <import.project>All</import.project>
         <domain.import.script>import.py</domain.import.script>
@@ -94,7 +94,7 @@
                                 <argument>-configProject</argument>
                                 <argument>${config.project}</argument>
 								
-								<argument>-configSubProjects</argument>
+				<argument>-configSubProjects</argument>
                                 <argument>${config.subprojects}</argument>	
 
                                 <argument>-configJar</argument>
